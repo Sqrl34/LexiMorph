@@ -1,4 +1,4 @@
-# LexiCode — LexiMorph
+# LexiMorph
 
 LexiMorph is a small transpiler: you pick a **name**, it builds a personal vocabulary from the letters in that name (plus `rstlne` only if needed), maps Python’s **keywords** to those words, and swaps them back to real Python when you run a script. Your source file is **locked** to that name via a header line.
 
