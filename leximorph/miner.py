@@ -33,12 +33,22 @@ def can_spell(word: str, pool: Counter[str]) -> bool:
     return all(pool[ch] >= need[ch] for ch in need)
 
 
-def mine_words(pool: Counter[str], dict_path: Path) -> list[str]:
+def mine_words(
+    pool: Counter[str],
+    dict_path: Path,
+    *,
+    exclude_surface: frozenset[str] | None = None,
+) -> list[str]:
     """
     Return sorted unique words from dict_path with length >= 3, plus curated
     two-letter words spellable from the pool. Excludes Python keywords and
     soft keywords so LexiMorph tokens never mirror Python's reserved names.
+
+    ``exclude_surface`` drops words that spell exactly like a Python builtin we
+    map *to*, so LexiMorph never uses ``print`` as a token while ``print`` is a
+    target name.
     """
+    banned = exclude_surface or frozenset()
     found: set[str] = set()
 
     with dict_path.open(encoding="utf-8", errors="ignore") as f:
@@ -46,17 +56,26 @@ def mine_words(pool: Counter[str], dict_path: Path) -> list[str]:
             w = line.strip().lower()
             if len(w) < 3 or not w.isalpha():
                 continue
+            if w in banned:
+                continue
             if is_forbidden_lexi_token(w):
                 continue
             if can_spell(w, pool):
                 found.add(w)
 
     for w in _TWO_LETTER:
+        if w in banned:
+            continue
         if can_spell(w, pool):
             found.add(w)
 
     return sorted(found)
 
 
-def count_distinct_mined(pool: Counter[str], dict_path: Path) -> int:
-    return len(mine_words(pool, dict_path))
+def count_distinct_mined(
+    pool: Counter[str],
+    dict_path: Path,
+    *,
+    exclude_surface: frozenset[str] | None = None,
+) -> int:
+    return len(mine_words(pool, dict_path, exclude_surface=exclude_surface))

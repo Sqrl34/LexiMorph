@@ -1,6 +1,6 @@
 # LexiMorph
 
-LexiMorph is a small transpiler: you pick a **name**, it builds a personal vocabulary from the letters in that name (plus `rstlne` only if needed), maps Python’s **keywords** to those words, and swaps them back to real Python when you run a script. Your source file is **locked** to that name via a header line.
+LexiMorph is a small transpiler: you pick a **name**, it builds a personal vocabulary from the letters in that name (plus `rstlne` only if needed), maps Python’s **keywords** and a curated set of **builtins** (for example `print` and `range`) to those words, and swaps them back to real Python when you run a script. Your source file is **locked** to that name via a header line.
 
 ---
 
@@ -21,7 +21,7 @@ cd /path/to/LexiCode
 
 ## Step 1 — Generate a mapping for your name
 
-This writes a JSON file that lists every LexiMorph token and the Python keyword it stands for.
+This writes a JSON file that lists every LexiMorph token and the Python keyword or builtin it stands for.
 
 ```bash
 python3 -m leximorph generate --name "Your Full Name" -o mymap.leximorph.json
@@ -39,7 +39,11 @@ python3 -m leximorph generate --name "Lucas Guzylak" -o lucas_guzylak.leximorph.
 python3 -m leximorph generate --name "Ada Lovelace" -o ada.json --dict /usr/share/dict/words
 ```
 
-**Optional:** `--buffer N` keeps extra mined words beyond the 35 Python keywords (default `0`).
+**Optional flags**
+
+- `--buffer N` — mine extra letters beyond what is needed for keywords + default builtins (default `0`).
+- `--no-builtins` — only remap the 35 keywords; leave `print`, `range`, etc. as normal Python.
+- `--builtins print,range,len` — your own comma-separated list instead of the default curated builtins.
 
 Parent directories for `-o` are created automatically if they do not exist.
 
@@ -57,29 +61,30 @@ If this does not match the mapping’s `canonical_name` (see the JSON), `run` / 
 
 ---
 
-## Step 3 — Look up which word means which keyword
+## Step 3 — Look up which word means which keyword or builtin
 
 Open your `*.leximorph.json` and use:
 
-- **`python_to_lexi`** — Python keyword → LexiMorph word (what you type).
-- **`lexi_to_python`** — LexiMorph word → Python keyword.
-- **`reserved_lexi`** — all tokens you must not reuse as your own variable or function names in the obvious way.
+- **`python_to_lexi`** — Python keyword or builtin name → LexiMorph word (what you type).
+- **`lexi_to_python`** — LexiMorph word → Python keyword or builtin name.
+- **`builtins_mapped`** — list of builtin names included (empty if you used `--no-builtins`).
+- **`reserved_lexi`** — all LexiMorph tokens you must not reuse as your own variable or function names in the obvious way.
 - **`name_letter_pool`** — letters from the name only.
 - **`letter_pool`** — letters used for mining (name letters plus any `rstlne` fillers that were required).
 
-**Builtins** such as `print`, `len`, and `input` are **not** remapped unless you extend the project; only Python **keywords** (and **soft keywords**) are excluded from appearing as LexiMorph tokens so they do not collide with real Python.
+The default builtin set lives in `leximorph/builtins_map.py`. Python **keywords** and **soft keywords** are never used as LexiMorph spellings; builtin *names* like `print` are not mined as tokens so they never double as a random LexiMorph word.
 
 ---
 
 ## Step 4 — Write your program
 
-Use normal Python layout (indentation, colons, strings, comments). Replace **keywords** with the LexiMorph words from your mapping, for example:
+Use normal Python layout (indentation, colons, strings, comments). Replace **keywords** and any **remapped builtins** with the LexiMorph words from `python_to_lexi`, for example:
 
 ```text
 # @leximorph name=Lucas Guzylak
 success = 1
-# ... use the token that maps to `if`, then the condition and colon ...
-    print("Done.")
+# ... token for `if`, then the condition and colon ...
+# ... token for `print` instead of spelling print ...
 ```
 
 Use any filename you like; `.lex` is a common convention.
@@ -128,7 +133,7 @@ Regenerate that example mapping after changing the generator logic:
 python3 -m leximorph generate --name "James Bond" -o examples/james_bond.leximorph.json
 ```
 
-Then update `examples/mission.lex` so its keyword tokens match the new `python_to_lexi` entries (they change when ranking or pairing rules change).
+Then update `examples/mission.lex` so its tokens match the new `python_to_lexi` entries (they change when ranking, pairing, or builtin rules change).
 
 ---
 
@@ -136,7 +141,9 @@ Then update `examples/mission.lex` so its keyword tokens match the new `python_t
 
 | Command | Purpose |
 |--------|---------|
-| `python3 -m leximorph generate --name "…" -o file.json` | Build mapping JSON from a name |
+| `python3 -m leximorph generate --name "…" -o file.json` | Build mapping (keywords + default builtins) |
+| `… generate … --no-builtins` | Keywords only |
+| `… generate … --builtins print,range` | Custom builtin list |
 | `python3 -m leximorph run SOURCE -m MAPPING.json` | Transpile and execute |
 | `python3 -m leximorph transpile SOURCE -m MAPPING.json [-o OUT.py]` | Emit Python |
 | `python3 -m leximorph validate SOURCE -m MAPPING.json` | Quick sanity checks |

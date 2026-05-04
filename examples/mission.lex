@@ -1,7 +1,7 @@
 # @leximorph name=James Bond
-# Builtins like print are unchanged; only Python keywords use the letter-pool vocabulary.
+# Keywords and builtins come from examples/james_bond.leximorph.json (see python_to_lexi).
 success = 1
 me success == 1:
-    print("Mission completed.")
+    ad("Mission completed.")
 name:
-    print("Mission failed.")
+    ad("Mission failed.")

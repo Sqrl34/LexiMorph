@@ -1,5 +1,6 @@
 import argparse
 import ast
+import keyword
 import re
 import subprocess
 import sys
@@ -20,10 +21,22 @@ def _default_dict() -> Path:
 
 def cmd_generate(args: argparse.Namespace) -> int:
     dpath = Path(args.dict) if args.dict else _default_dict()
-    doc = build_mapping(args.name, dpath, min_buffer=args.buffer)
+    if args.no_builtins:
+        builtins_arg: tuple[str, ...] | None = ()
+    elif args.builtins is not None:
+        from leximorph.builtins_map import normalize_builtin_names
+
+        builtins_arg = normalize_builtin_names(
+            [s.strip() for s in args.builtins.split(",") if s.strip()]
+        )
+    else:
+        builtins_arg = None
+    doc = build_mapping(args.name, dpath, min_buffer=args.buffer, builtins=builtins_arg)
     out = Path(args.output)
     export_mapping(doc, out)
-    print(f"Wrote {out} ({len(doc['lexi_to_python'])} keyword mappings).")
+    n_kw = len(keyword.kwlist)
+    n_bi = len(doc.get("builtins_mapped") or [])
+    print(f"Wrote {out} ({n_kw} keyword + {n_bi} builtin mappings).")
     return 0
 
 
@@ -87,7 +100,17 @@ def main() -> int:
         "--buffer",
         type=int,
         default=0,
-        help="Mine extra words beyond Python keyword count (default 0)",
+        help="Mine extra words beyond keywords + default builtins (default 0)",
+    )
+    g.add_argument(
+        "--no-builtins",
+        action="store_true",
+        help="Do not remap print/range/etc.; keywords only.",
+    )
+    g.add_argument(
+        "--builtins",
+        metavar="NAMES",
+        help="Comma-separated builtin names to remap instead of the default set.",
     )
     g.set_defaults(func=cmd_generate)
 

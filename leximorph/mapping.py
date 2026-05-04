@@ -4,6 +4,7 @@ import keyword
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from leximorph.builtins_map import default_builtin_names, normalize_builtin_names
 from leximorph.miner import can_spell, is_forbidden_lexi_token, mine_words
 from leximorph.pool import augment_pool, base_pool, canonical_name
 from leximorph.word_rank import (
@@ -73,8 +74,16 @@ def _pair_by_length_bucket(
     return mapping
 
 
-def _pool_sufficient(pool: Counter[str], dict_path: Path) -> bool:
-    words = mine_words(pool, dict_path)
+def _pool_sufficient(
+    pool: Counter[str],
+    dict_path: Path,
+    *,
+    exclude_surface: frozenset[str],
+    min_total_words: int,
+) -> bool:
+    words = mine_words(pool, dict_path, exclude_surface=exclude_surface)
+    if len(words) < min_total_words:
+        return False
     lexi_by_len: dict[int, list[str]] = defaultdict(list)
     for w in words:
         lexi_by_len[len(w)].append(w)
@@ -85,32 +94,118 @@ def _pool_sufficient(pool: Counter[str], dict_path: Path) -> bool:
     return True
 
 
+def _sorted_remainder_candidates(
+    words: list[str],
+    *,
+    used_lexi: set[str],
+    name_pool: Counter[str],
+    canonical_name: str,
+) -> list[str]:
+    seed = mapping_seed_from_name(canonical_name)
+    key = lambda w: (
+        0 if can_spell(w, name_pool) else 1,
+        candidate_sort_key(w, seed=seed, length=len(w)),
+    )
+    return sorted((w for w in words if w not in used_lexi), key=key)
+
+
+def _pair_builtins(
+    words: list[str],
+    *,
+    used_lexi: set[str],
+    name_pool: Counter[str],
+    canonical_name: str,
+    builtins: tuple[str, ...],
+) -> dict[str, str]:
+    """Assign LexiMorph tokens to builtin names from mined words not used for keywords."""
+    if not builtins:
+        return {}
+    seed = mapping_seed_from_name(canonical_name)
+    ordered = _sorted_remainder_candidates(
+        words,
+        used_lexi=set(used_lexi),
+        name_pool=name_pool,
+        canonical_name=canonical_name,
+    )
+    targets = shuffle_list(list(builtins), seed=seed, tag="builtin:targets")
+    out: dict[str, str] = {}
+    pos = 0
+    for target in targets:
+        assigned = False
+        while pos < len(ordered):
+            w = ordered[pos]
+            pos += 1
+            if w in used_lexi:
+                continue
+            if is_forbidden_lexi_token(w):
+                continue
+            out[w] = target
+            used_lexi.add(w)
+            assigned = True
+            break
+        if not assigned:
+            raise ValueError(
+                f"Not enough mined words left to map builtin {target!r}. "
+                "Try a longer name, --buffer, or fewer builtins (--no-builtins / --builtins …)."
+            )
+    return out
+
+
 def build_mapping(
     first_last: str,
     dict_path: Path,
     *,
     min_buffer: int = 0,
+    builtins: tuple[str, ...] | None = None,
 ) -> dict:
     """
     Build full mapping document: letter pool, optional fillers, lexi->python.
+
+    ``builtins``: ``None`` = default curated builtin list; ``()`` = keywords only.
     """
     name = canonical_name(first_last)
     pool0 = base_pool(first_last)
 
+    if builtins is None:
+        builtins_effective = default_builtin_names()
+    else:
+        builtins_effective = normalize_builtin_names(builtins)
+
+    exclude_surface = frozenset(builtins_effective)
+    min_total = len(keyword.kwlist) + len(builtins_effective) + max(8, min_buffer)
+
     def sufficient(p: Counter[str]) -> bool:
-        if not _pool_sufficient(p, dict_path):
+        if not _pool_sufficient(
+            p,
+            dict_path,
+            exclude_surface=exclude_surface,
+            min_total_words=min_total,
+        ):
             return False
         if min_buffer <= 0:
             return True
-        return len(mine_words(p, dict_path)) >= len(keyword.kwlist) + min_buffer
+        return (
+            len(mine_words(p, dict_path, exclude_surface=exclude_surface))
+            >= len(keyword.kwlist) + len(builtins_effective) + min_buffer
+        )
 
     pool = augment_pool(pool0, sufficient)
-    words = mine_words(pool, dict_path)
-    lexi_to_python = _pair_by_length_bucket(
+    words = mine_words(pool, dict_path, exclude_surface=exclude_surface)
+    lexi_kw = _pair_by_length_bucket(
         words,
         canonical_name=name,
         name_pool=pool0,
     )
+    used = set(lexi_kw.keys())
+    lexi_bi = _pair_builtins(
+        words,
+        used_lexi=used,
+        name_pool=pool0,
+        canonical_name=name,
+        builtins=builtins_effective,
+    )
+    lexi_to_python = {**lexi_kw, **lexi_bi}
+
     for lx in lexi_to_python:
         if is_forbidden_lexi_token(lx):
             raise RuntimeError(
@@ -124,6 +219,7 @@ def build_mapping(
         "mapping_seed_hex": hashlib.sha256(name.encode("utf-8")).hexdigest()[:16],
         "name_letter_pool": dict(sorted(pool0.items())),
         "letter_pool": dict(sorted(pool.items())),
+        "builtins_mapped": list(builtins_effective),
         "reserved_lexi": sorted(lexi_to_python.keys()),
         "lexi_to_python": lexi_to_python,
         "python_to_lexi": {v: k for k, v in lexi_to_python.items()},
