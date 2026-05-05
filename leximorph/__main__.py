@@ -65,6 +65,28 @@ def cmd_run(args: argparse.Namespace) -> int:
     return r.returncode
 
 
+def cmd_interpret(args: argparse.Namespace) -> int:
+    from leximorph.interpreter import run_program
+    from leximorph.transpiler import canonicalize_header_name, parse_name_header
+
+    doc = load_mapping(Path(args.mapping))
+    src = Path(args.source).read_text(encoding="utf-8")
+    header_name = parse_name_header(src)
+    if header_name is None:
+        print(
+            "Missing header: # @leximorph name=Your Name Here  (must match mapping file)"
+        )
+        return 1
+    doc_name = doc["canonical_name"]
+    if canonicalize_header_name(header_name) != doc_name:
+        print(
+            f"Script name {header_name!r} does not match mapping {doc_name!r}. "
+            "LexiMorph programs only run for the same chosen name."
+        )
+        return 1
+    return run_program(src, doc)
+
+
 def cmd_validate(args: argparse.Namespace) -> int:
     doc = load_mapping(Path(args.mapping))
     py = transpile_file(Path(args.source), doc)
@@ -127,6 +149,14 @@ def main() -> int:
     r.add_argument("source")
     r.add_argument("-m", "--mapping", required=True)
     r.set_defaults(func=cmd_run)
+
+    i = sub.add_parser(
+        "interpret",
+        help="Parse and interpret with the built-in LexiMorph interpreter (no CPython exec)",
+    )
+    i.add_argument("source")
+    i.add_argument("-m", "--mapping", required=True)
+    i.set_defaults(func=cmd_interpret)
 
     v = sub.add_parser("validate", help="Transpile + AST check + simple reserved binding scan")
     v.add_argument("source")

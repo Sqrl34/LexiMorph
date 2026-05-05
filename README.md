@@ -99,6 +99,27 @@ Use any filename you like; `.lex` is a common convention.
 python -m leximorph run your_script.lex -m lucas_guzylak.leximorph.json
 ```
 
+---
+
+## Step 6 — Interpret (built-in interpreter)
+
+LexiMorph also ships a small **tree-walking interpreter** that runs a supported subset of the language *without* transpiling to Python and *without* calling `ast`, `exec`, or `subprocess`.
+
+```bash
+python -m leximorph interpret your_script.lex -m lucas_guzylak.leximorph.json
+```
+
+**Supported subset**
+
+- **Statements**: assignment (`x = expr`), expression statement, `if/elif/else`, `while`, `for name in iterable`, `def name(params):`, `return`, `pass`, `break`, `continue`.
+- **Expressions**: int/float/string/`True`/`False`/`None`, identifiers, parenthesized expressions, list literals `[a, b]`, indexing `a[i]`, calls `f(args)`, unary `-` and `not`, binary `+ - * / // % **`, comparisons `< <= > >= == !=`, boolean `and`/`or`.
+- **Builtins** (implemented by the interpreter): `print`, `range`, `len`, `int`, `float`, `str`, `bool`, `abs`, `min`, `max`, `sum`, `input`, `enumerate`, `list`.
+
+**How it differs from `run`**
+
+- `run` transpiles `.lex` to Python and executes it with your current Python.
+- `interpret` parses and evaluates the program directly, and will raise a clean LexiMorph runtime error for unsupported features.
+
 **Print Python to the terminal:**
 
 ```bash
