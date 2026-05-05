@@ -1,0 +1,374 @@
+/* LexiMorph — GitHub Pages */
+:root {
+  --bg: #0e1117;
+  --bg-elevated: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #d4a852;
+  --accent-dim: rgba(212, 168, 82, 0.15);
+  --keyword: #79c0ff;
+  --string: #a5d6ff;
+  --shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(212, 168, 82, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(121, 192, 255, 0.06), transparent);
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.wrap {
+  width: min(920px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+/* Header */
+.site-header {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--border);
+  background: rgba(14, 17, 23, 0.85);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.95rem;
+}
+
+.nav-links a {
+  color: var(--muted);
+}
+
+.nav-links a:hover {
+  color: var(--text);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(212, 168, 82, 0.25);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+/* Hero */
+.hero {
+  padding: 4rem 0 3.5rem;
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid rgba(212, 168, 82, 0.35);
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.hero-lead {
+  margin: 0 auto 2rem;
+  max-width: 38ch;
+  font-size: 1.15rem;
+  color: var(--muted);
+}
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* Sections */
+section {
+  padding: 3rem 0;
+}
+
+section:nth-child(even) {
+  background: rgba(22, 27, 34, 0.5);
+  border-block: 1px solid var(--border);
+}
+
+.section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.section-intro {
+  margin: 0 0 1.75rem;
+  color: var(--muted);
+  max-width: 52ch;
+}
+
+/* Cards */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  padding: 1.35rem 1.25rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+/* Steps */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.15rem 1.25rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.steps strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text);
+}
+
+.steps p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+/* Code */
+.code-block {
+  margin: 0;
+  padding: 1.25rem 1.35rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.code-block .c {
+  color: var(--muted);
+}
+
+.code-block .k {
+  color: var(--keyword);
+}
+
+.code-block .s {
+  color: var(--string);
+}
+
+.code-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .code-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.code-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+/* Table */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  background: rgba(212, 168, 82, 0.08);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+td:first-child {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: var(--keyword);
+}
+
+/* Footer */
+.site-footer {
+  padding: 2.5rem 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.site-footer p {
+  margin: 0.35rem 0;
+}
+
+/* Aside */
+.note {
+  margin-top: 1.5rem;
+  padding: 1rem 1.15rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  background: var(--accent-dim);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+}

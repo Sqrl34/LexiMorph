@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="LexiMorph — a name-derived vocabulary transpiler for Python. Map keywords and builtins to words built from your name, write .lex sources, run or transpile to real Python."
+    />
+    <title>LexiMorph — Name-derived Python vocabulary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="logo" href="#">Lexi<span>Morph</span></a>
+        <nav class="nav-links" aria-label="Page">
+          <a href="#how">How it works</a>
+          <a href="#example">Example</a>
+          <a href="#cli">Commands</a>
+        </nav>
+        <a class="btn" href="https://github.com/Sqrl34/LexiMorph">View on GitHub</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <p class="badge">Transpiler · Python 3.9+</p>
+          <h1>Your name becomes your syntax.</h1>
+          <p class="hero-lead">
+            LexiMorph builds a personal vocabulary from the letters in your name (plus a little
+            <code style="color: var(--accent)">rstlne</code> only when needed), maps Python
+            <strong>keywords</strong> and selected <strong>builtins</strong> to those words, and
+            swaps them back to real Python when you run your script.
+          </p>
+          <div class="hero-cta">
+            <a class="btn" href="https://github.com/Sqrl34/LexiMorph">Clone the repo</a>
+            <a class="btn btn-secondary" href="#how">See the workflow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="wrap">
+          <h2 class="section-title">What you get</h2>
+          <p class="section-intro">
+            Sources are “locked” to the name you used when generating the mapping, so one person’s
+            vocabulary cannot accidentally run with another’s JSON file.
+          </p>
+          <div class="grid-3">
+            <article class="card">
+              <h3>Personal token set</h3>
+              <p>
+                Every LexiMorph token is mined from your name’s letters and a word list—ranked so
+                common words tend to win when possible.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Familiar Python shape</h3>
+              <p>
+                Keep indentation, strings, and comments as usual. You replace keywords and remapped
+                builtins with your LexiMorph words from the generated mapping.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Run or transpile</h3>
+              <p>
+                Execute in one step, print Python to the terminal, or write a <code>.py</code> file.
+                Optional validation checks the AST and catches obvious reserved-word misuse.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="how">
+        <div class="wrap">
+          <h2 class="section-title">How it works</h2>
+          <p class="section-intro">
+            From the repo root (the folder that contains <code>leximorph/</code>), use the CLI to
+            generate a mapping, add a header to your source, then run or transpile.
+          </p>
+          <ol class="steps">
+            <li>
+              <div>
+                <strong>Generate a mapping</strong>
+                <p>
+                  <code>python -m leximorph generate --name "Your Full Name" -o mymap.leximorph.json</code><br />
+                  Needs a word list (e.g. <code>/usr/share/dict/words</code> on macOS/Linux, or pass
+                  <code>--dict</code>). Optional: <code>--buffer</code>, <code>--no-builtins</code>,
+                  <code>--builtins print,range,len</code>.
+                </p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Lock the source to your name</strong>
+                <p>
+                  The first matching line must use the same name as in <code>generate</code> (spacing
+                  and case are normalized).
+                </p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Write your program</strong>
+                <p>
+                  Use <code>python_to_lexi</code> and <code>lexi_to_python</code> in the JSON to
+                  know what to type. Avoid reusing <code>reserved_lexi</code> tokens as your own
+                  identifiers.
+                </p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <strong>Run or transpile</strong>
+                <p>
+                  <code>python -m leximorph run source.lex -m mymap.leximorph.json</code> ·
+                  <code>python -m leximorph transpile … [-o out.py]</code> ·
+                  <code>validate</code> for a quick sanity pass.
+                </p>
+              </div>
+            </li>
+          </ol>
+          <p class="note">
+            <strong>Requirements:</strong> Python 3.9+. Optional <code>pip install wordfreq</code> for
+            slightly better “common word first” ranking when mining—the repo also ships a bundled
+            frequency list.
+          </p>
+        </div>
+      </section>
+
+      <section id="example">
+        <div class="wrap">
+          <h2 class="section-title">Bundled example</h2>
+          <p class="section-intro">
+            The repo includes <strong>James Bond</strong> mapping and a tiny <code>mission.lex</code>
+            that prints mission status—run it with the JSON beside it.
+          </p>
+          <div class="code-row">
+            <div>
+              <div class="code-label">Header + LexiMorph source</div>
+              <pre class="code-block" aria-label="Example LexiMorph source"><span class="c"># @leximorph name=James Bond</span>
+<span class="c"># Keywords and builtins come from examples/james_bond.leximorph.json</span>
+success = <span class="s">1</span>
+me success == <span class="s">1</span>:
+    ad(<span class="s">"Mission completed."</span>)
+name:
+    ad(<span class="s">"Mission failed."</span>)</pre>
+            </div>
+            <div>
+              <div class="code-label">Run from repo root</div>
+              <pre class="code-block" aria-label="Run command"><span class="k">python</span> -m leximorph run examples/mission.lex \
+  -m examples/james_bond.leximorph.json</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="cli">
+        <div class="wrap">
+          <h2 class="section-title">Command reference</h2>
+          <p class="section-intro">Quick map of the LexiMorph CLI subcommands.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Command</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>generate --name "…" -o file.json</td>
+                  <td>Build mapping (keywords + default builtins)</td>
+                </tr>
+                <tr>
+                  <td>generate … --no-builtins</td>
+                  <td>Keywords only; leave builtins as normal Python</td>
+                </tr>
+                <tr>
+                  <td>generate … --builtins print,range</td>
+                  <td>Custom builtin list instead of the default set</td>
+                </tr>
+                <tr>
+                  <td>run SOURCE -m MAPPING.json</td>
+                  <td>Transpile in memory and execute with current Python</td>
+                </tr>
+                <tr>
+                  <td>transpile SOURCE -m MAPPING.json [-o OUT.py]</td>
+                  <td>Emit Python to stdout or a file</td>
+                </tr>
+                <tr>
+                  <td>validate SOURCE -m MAPPING.json</td>
+                  <td>Transpile, parse AST, simple reserved-word assignment scan</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note" style="margin-top: 1.75rem">
+            Also in this repository: <code>keyword_name_variations.py</code> — a small standalone
+            experiment (per-keyword name rotations to JSON). It is <strong>not</strong> part of the
+            LexiMorph CLI.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          <strong>LexiMorph</strong> — open source ·
+          <a href="https://github.com/Sqrl34/LexiMorph">github.com/Sqrl34/LexiMorph</a>
+        </p>
+        <p>Hosted with GitHub Pages from the <code>docs/</code> folder.</p>
+      </div>
+    </footer>
+  </body>
+</html>
