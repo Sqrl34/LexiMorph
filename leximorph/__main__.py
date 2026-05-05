@@ -11,11 +11,14 @@ from leximorph.transpiler import transpile_file
 
 
 def _default_dict() -> Path:
+    bundled = Path(__file__).resolve().parent / "data" / "word_ranks.txt"
+    if bundled.is_file():
+        return bundled
     for p in (Path("/usr/share/dict/words"), Path("/usr/share/dict/web2")):
         if p.is_file():
             return p
     raise FileNotFoundError(
-        "No system word list found. Pass --dict /path/to/words with one word per line."
+        "No word list found. Pass --dict /path/to/words with one word per line."
     )
 
 

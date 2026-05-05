@@ -93,8 +93,8 @@
                 <strong>Generate a mapping</strong>
                 <p>
                   <code>python -m leximorph generate --name "Your Full Name" -o mymap.leximorph.json</code><br />
-                  Needs a word list (e.g. <code>/usr/share/dict/words</code> on macOS/Linux, or pass
-                  <code>--dict</code>). Optional: <code>--buffer</code>, <code>--no-builtins</code>,
+                  Uses the bundled word list by default; pass <code>--dict</code> to override. Optional:
+                  <code>--buffer</code>, <code>--no-builtins</code>,
                   <code>--builtins print,range,len</code>.
                 </p>
               </div>
@@ -130,7 +130,7 @@
             </li>
           </ol>
           <p class="note">
-            <strong>Requirements:</strong> Python 3.9+. Optional <code>pip install wordfreq</code> for
+            <strong>Requirements:</strong> Python 3.9+. Optional <code>python -m pip install wordfreq</code> for
             slightly better “common word first” ranking when mining—the repo also ships a bundled
             frequency list.
           </p>
@@ -159,6 +159,19 @@ name:
               <div class="code-label">Run from repo root</div>
               <pre class="code-block" aria-label="Run command"><span class="k">python</span> -m leximorph run examples/mission.lex \
   -m examples/james_bond.leximorph.json</pre>
+            </div>
+          </div>
+          <p class="section-intro" style="margin-top: 1.5rem">
+            More examples: <code>examples/fizzbuzz_jaiden.lex</code> and <code>examples/oop_showcase_jaiden.lex</code>
+            (locked to the name <code>jaiden</code> and run with <code>jaiden.leximorph.json</code>).
+          </p>
+          <div class="code-row">
+            <div>
+              <div class="code-label">Run the jaiden examples</div>
+              <pre class="code-block" aria-label="Run jaiden examples"><span class="k">python</span> -m leximorph run examples/fizzbuzz_jaiden.lex \
+  -m jaiden.leximorph.json
+<span class="k">python</span> -m leximorph run examples/oop_showcase_jaiden.lex \
+  -m jaiden.leximorph.json</pre>
             </div>
           </div>
         </div>

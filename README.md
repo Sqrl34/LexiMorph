@@ -8,13 +8,13 @@ LexiMorph is a small transpiler: you pick a **name**, it builds a personal vocab
 
 - **Python 3.9+** (uses `pathlib`, `keyword.issoftkeyword`, etc.).
 - A **word list**: one word per line, lowercase optional.  
-  On macOS/Linux this is usually `/usr/share/dict/words`. If `generate` cannot find one, pass `--dict` with a path to your own file.
-- **Optional:** `python3 -m pip install wordfreq` for slightly better “common word first” ranking when mining (the repo already ships a bundled frequency list).
+  LexiMorph ships a bundled list (default). If you want to override it, pass `--dict` with a path to your own file.
+- **Optional:** `python -m pip install wordfreq` for slightly better “common word first” ranking when mining (the repo already ships a bundled frequency list).
 
 All commands below assume you are in the **repository root** (the folder that contains `leximorph/` and this `README.md`).
 
 ```bash
-cd /path/to/LexiCode
+cd /path/to/LexiMorph
 ```
 
 ---
@@ -24,19 +24,19 @@ cd /path/to/LexiCode
 This writes a JSON file that lists every LexiMorph token and the Python keyword or builtin it stands for.
 
 ```bash
-python3 -m leximorph generate --name "Your Full Name" -o mymap.leximorph.json
+python -m leximorph generate --name "Your Full Name" -o mymap.leximorph.json
 ```
 
 **Example (Lucas Guzylak):**
 
 ```bash
-python3 -m leximorph generate --name "Lucas Guzylak" -o lucas_guzylak.leximorph.json
+python -m leximorph generate --name "Lucas Guzylak" -o lucas_guzylak.leximorph.json
 ```
 
-**Use a custom dictionary path** (if the default file is missing):
+**Use a custom dictionary path** (to override the bundled default):
 
 ```bash
-python3 -m leximorph generate --name "Ada Lovelace" -o ada.json --dict /usr/share/dict/words
+python -m leximorph generate --name "Ada Lovelace" -o ada.json --dict /path/to/words.txt
 ```
 
 **Optional flags**
@@ -96,25 +96,25 @@ Use any filename you like; `.lex` is a common convention.
 **Run** (transpile in memory and execute with the current `python3`):
 
 ```bash
-python3 -m leximorph run your_script.lex -m lucas_guzylak.leximorph.json
+python -m leximorph run your_script.lex -m lucas_guzylak.leximorph.json
 ```
 
 **Print Python to the terminal:**
 
 ```bash
-python3 -m leximorph transpile your_script.lex -m lucas_guzylak.leximorph.json
+python -m leximorph transpile your_script.lex -m lucas_guzylak.leximorph.json
 ```
 
 **Write Python to a file:**
 
 ```bash
-python3 -m leximorph transpile your_script.lex -m lucas_guzylak.leximorph.json -o your_script.py
+python -m leximorph transpile your_script.lex -m lucas_guzylak.leximorph.json -o your_script.py
 ```
 
 **Validate** (transpile, `ast.parse`, and a simple check for reserved words used like `name =` at the start of a line):
 
 ```bash
-python3 -m leximorph validate your_script.lex -m lucas_guzylak.leximorph.json
+python -m leximorph validate your_script.lex -m lucas_guzylak.leximorph.json
 ```
 
 ---
@@ -124,13 +124,20 @@ python3 -m leximorph validate your_script.lex -m lucas_guzylak.leximorph.json
 From the repo root:
 
 ```bash
-python3 -m leximorph run examples/mission.lex -m examples/james_bond.leximorph.json
+python -m leximorph run examples/mission.lex -m examples/james_bond.leximorph.json
 ```
 
 Regenerate that example mapping after changing the generator logic:
 
 ```bash
-python3 -m leximorph generate --name "James Bond" -o examples/james_bond.leximorph.json
+python -m leximorph generate --name "James Bond" -o examples/james_bond.leximorph.json
+```
+
+Additional examples (generated for the name `jaiden`):
+
+```bash
+python -m leximorph run examples/fizzbuzz_jaiden.lex -m jaiden.leximorph.json
+python -m leximorph run examples/oop_showcase_jaiden.lex -m jaiden.leximorph.json
 ```
 
 Then update `examples/mission.lex` so its tokens match the new `python_to_lexi` entries (they change when ranking, pairing, or builtin rules change).
@@ -141,12 +148,12 @@ Then update `examples/mission.lex` so its tokens match the new `python_to_lexi` 
 
 | Command | Purpose |
 |--------|---------|
-| `python3 -m leximorph generate --name "…" -o file.json` | Build mapping (keywords + default builtins) |
+| `python -m leximorph generate --name "…" -o file.json` | Build mapping (keywords + default builtins) |
 | `… generate … --no-builtins` | Keywords only |
 | `… generate … --builtins print,range` | Custom builtin list |
-| `python3 -m leximorph run SOURCE -m MAPPING.json` | Transpile and execute |
-| `python3 -m leximorph transpile SOURCE -m MAPPING.json [-o OUT.py]` | Emit Python |
-| `python3 -m leximorph validate SOURCE -m MAPPING.json` | Quick sanity checks |
+| `python -m leximorph run SOURCE -m MAPPING.json` | Transpile and execute |
+| `python -m leximorph transpile SOURCE -m MAPPING.json [-o OUT.py]` | Emit Python |
+| `python -m leximorph validate SOURCE -m MAPPING.json` | Quick sanity checks |
 
 ---
 
