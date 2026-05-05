@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="LexiMorph — a name-derived vocabulary transpiler for Python. Map keywords and builtins to words built from your name, write .lex sources, run or transpile to real Python."
+      content="LexiMorph — a name-derived vocabulary interpreter for Python. Map keywords and builtins to words built from your name, write .lex sources, and interpret them with a built-in tree-walking interpreter."
     />
     <title>LexiMorph — Name-derived Python vocabulary</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -32,13 +32,13 @@
     <main>
       <section class="hero">
         <div class="wrap">
-          <p class="badge">Transpiler · Python 3.9+</p>
+          <p class="badge">Interpreter · Python 3.9+</p>
           <h1>Your name becomes your syntax.</h1>
           <p class="hero-lead">
             LexiMorph builds a personal vocabulary from the letters in your name (plus a little
             <code style="color: var(--accent)">rstlne</code> only when needed), maps Python
             <strong>keywords</strong> and selected <strong>builtins</strong> to those words, and
-            swaps them back to real Python when you run your script.
+            evaluates your program with a built-in interpreter.
           </p>
           <div class="hero-cta">
             <a class="btn" href="https://github.com/Sqrl34/LexiMorph">Clone the repo</a>
@@ -70,10 +70,10 @@
               </p>
             </article>
             <article class="card">
-              <h3>Run or transpile</h3>
+              <h3>Interpret</h3>
               <p>
-                Execute in one step, print Python to the terminal, or write a <code>.py</code> file.
-                Optional validation checks the AST and catches obvious reserved-word misuse.
+                Execute in one step with the built-in interpreter. Unsupported features produce a
+                clean error instead of a Python traceback.
               </p>
             </article>
           </div>
@@ -85,7 +85,7 @@
           <h2 class="section-title">How it works</h2>
           <p class="section-intro">
             From the repo root (the folder that contains <code>leximorph/</code>), use the CLI to
-            generate a mapping, add a header to your source, then run or transpile.
+            generate a mapping, add a header to your source, then interpret.
           </p>
           <ol class="steps">
             <li>
@@ -120,11 +120,9 @@
             </li>
             <li>
               <div>
-                <strong>Run or transpile</strong>
+                <strong>Interpret</strong>
                 <p>
-                  <code>python -m leximorph run source.lex -m mymap.leximorph.json</code> ·
-                  <code>python -m leximorph transpile … [-o out.py]</code> ·
-                  <code>validate</code> for a quick sanity pass.
+                  <code>python -m leximorph interpret source.lex -m mymap.leximorph.json</code>
                 </p>
               </div>
             </li>
@@ -157,21 +155,19 @@ name:
             </div>
             <div>
               <div class="code-label">Run from repo root</div>
-              <pre class="code-block" aria-label="Run command"><span class="k">python</span> -m leximorph run examples/mission.lex \
+              <pre class="code-block" aria-label="Run command"><span class="k">python</span> -m leximorph interpret examples/mission.lex \
   -m examples/james_bond.leximorph.json</pre>
             </div>
           </div>
           <p class="section-intro" style="margin-top: 1.5rem">
-            More examples: <code>examples/fizzbuzz_jaiden.lex</code> and <code>examples/oop_showcase_jaiden.lex</code>
-            (locked to the name <code>jaiden</code> and run with <code>jaiden.leximorph.json</code>).
+            More examples: <code>examples/fizzbuzz_jaiden.lex</code> and <code>examples/interpreter/interp_demo.lex</code>.
+            The FizzBuzz example is locked to the name <code>jaiden</code> and runs with <code>examples/jaiden.leximorph.json</code>.
           </p>
           <div class="code-row">
             <div>
               <div class="code-label">Run the jaiden examples</div>
-              <pre class="code-block" aria-label="Run jaiden examples"><span class="k">python</span> -m leximorph run examples/fizzbuzz_jaiden.lex \
-  -m jaiden.leximorph.json
-<span class="k">python</span> -m leximorph run examples/oop_showcase_jaiden.lex \
-  -m jaiden.leximorph.json</pre>
+              <pre class="code-block" aria-label="Run jaiden examples"><span class="k">python</span> -m leximorph interpret examples/fizzbuzz_jaiden.lex \
+  -m examples/jaiden.leximorph.json</pre>
             </div>
           </div>
         </div>
@@ -203,16 +199,8 @@ name:
                   <td>Custom builtin list instead of the default set</td>
                 </tr>
                 <tr>
-                  <td>run SOURCE -m MAPPING.json</td>
-                  <td>Transpile in memory and execute with current Python</td>
-                </tr>
-                <tr>
-                  <td>transpile SOURCE -m MAPPING.json [-o OUT.py]</td>
-                  <td>Emit Python to stdout or a file</td>
-                </tr>
-                <tr>
-                  <td>validate SOURCE -m MAPPING.json</td>
-                  <td>Transpile, parse AST, simple reserved-word assignment scan</td>
+                  <td>interpret SOURCE -m MAPPING.json</td>
+                  <td>Parse and interpret (supported subset)</td>
                 </tr>
               </tbody>
             </table>

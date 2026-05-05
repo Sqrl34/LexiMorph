@@ -1,6 +1,6 @@
 # LexiMorph
 
-LexiMorph is a small transpiler: you pick a **name**, it builds a personal vocabulary from the letters in that name (plus `rstlne` only if needed), maps Python’s **keywords** and a curated set of **builtins** (for example `print` and `range`) to those words, and swaps them back to real Python when you run a script. Your source file is **locked** to that name via a header line.
+LexiMorph is a small interpreter: you pick a **name**, it builds a personal vocabulary from the letters in that name (plus `rstlne` only if needed), maps Python’s **keywords** and a curated set of **builtins** (for example `print` and `range`) to those words, and evaluates the resulting program with a built-in tree-walking interpreter. Your source file is **locked** to that name via a header line.
 
 ---
 
@@ -57,7 +57,7 @@ The first matching line in your source file must tie the script to the same name
 # @leximorph name=Lucas Guzylak
 ```
 
-If this does not match the mapping’s `canonical_name` (see the JSON), `run` / `transpile` will error on purpose so one person’s vocabulary cannot run with another’s mapping by mistake.
+If this does not match the mapping’s `canonical_name` (see the JSON), `interpret` will error on purpose so one person’s vocabulary cannot run with another’s mapping by mistake.
 
 ---
 
@@ -91,19 +91,9 @@ Use any filename you like; `.lex` is a common convention.
 
 ---
 
-## Step 5 — Run or transpile
+## Step 5 — Interpret (built-in interpreter)
 
-**Run** (transpile in memory and execute with the current `python3`):
-
-```bash
-python -m leximorph run your_script.lex -m lucas_guzylak.leximorph.json
-```
-
----
-
-## Step 6 — Interpret (built-in interpreter)
-
-LexiMorph also ships a small **tree-walking interpreter** that runs a supported subset of the language *without* transpiling to Python and *without* calling `ast`, `exec`, or `subprocess`.
+LexiMorph evaluates programs with a small **tree-walking interpreter** and does **not** generate Python code or call `ast`, `exec`, or `subprocess`.
 
 ```bash
 python -m leximorph interpret your_script.lex -m lucas_guzylak.leximorph.json
@@ -115,29 +105,6 @@ python -m leximorph interpret your_script.lex -m lucas_guzylak.leximorph.json
 - **Expressions**: int/float/string/`True`/`False`/`None`, identifiers, parenthesized expressions, list literals `[a, b]`, indexing `a[i]`, calls `f(args)`, unary `-` and `not`, binary `+ - * / // % **`, comparisons `< <= > >= == !=`, boolean `and`/`or`.
 - **Builtins** (implemented by the interpreter): `print`, `range`, `len`, `int`, `float`, `str`, `bool`, `abs`, `min`, `max`, `sum`, `input`, `enumerate`, `list`.
 
-**How it differs from `run`**
-
-- `run` transpiles `.lex` to Python and executes it with your current Python.
-- `interpret` parses and evaluates the program directly, and will raise a clean LexiMorph runtime error for unsupported features.
-
-**Print Python to the terminal:**
-
-```bash
-python -m leximorph transpile your_script.lex -m lucas_guzylak.leximorph.json
-```
-
-**Write Python to a file:**
-
-```bash
-python -m leximorph transpile your_script.lex -m lucas_guzylak.leximorph.json -o your_script.py
-```
-
-**Validate** (transpile, `ast.parse`, and a simple check for reserved words used like `name =` at the start of a line):
-
-```bash
-python -m leximorph validate your_script.lex -m lucas_guzylak.leximorph.json
-```
-
 ---
 
 ## Bundled example (James Bond)
@@ -145,7 +112,7 @@ python -m leximorph validate your_script.lex -m lucas_guzylak.leximorph.json
 From the repo root:
 
 ```bash
-python -m leximorph run examples/mission.lex -m examples/james_bond.leximorph.json
+python -m leximorph interpret examples/mission.lex -m examples/james_bond.leximorph.json
 ```
 
 Regenerate that example mapping after changing the generator logic:
@@ -157,8 +124,13 @@ python -m leximorph generate --name "James Bond" -o examples/james_bond.leximorp
 Additional examples (generated for the name `jaiden`):
 
 ```bash
-python -m leximorph run examples/fizzbuzz_jaiden.lex -m jaiden.leximorph.json
-python -m leximorph run examples/oop_showcase_jaiden.lex -m jaiden.leximorph.json
+python -m leximorph interpret examples/fizzbuzz_jaiden.lex -m examples/jaiden.leximorph.json
+```
+
+Interpreter-subset demo (James Bond mapping):
+
+```bash
+python -m leximorph interpret examples/interpreter/interp_demo.lex -m examples/james_bond.leximorph.json
 ```
 
 Then update `examples/mission.lex` so its tokens match the new `python_to_lexi` entries (they change when ranking, pairing, or builtin rules change).
@@ -172,9 +144,7 @@ Then update `examples/mission.lex` so its tokens match the new `python_to_lexi` 
 | `python -m leximorph generate --name "…" -o file.json` | Build mapping (keywords + default builtins) |
 | `… generate … --no-builtins` | Keywords only |
 | `… generate … --builtins print,range` | Custom builtin list |
-| `python -m leximorph run SOURCE -m MAPPING.json` | Transpile and execute |
-| `python -m leximorph transpile SOURCE -m MAPPING.json [-o OUT.py]` | Emit Python |
-| `python -m leximorph validate SOURCE -m MAPPING.json` | Quick sanity checks |
+| `python -m leximorph interpret SOURCE -m MAPPING.json` | Parse and interpret (supported subset) |
 
 ---
 
