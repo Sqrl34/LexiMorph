@@ -2,6 +2,8 @@
 
 LexiMorph is a small interpreter: you pick a **name**, it builds a personal vocabulary from the letters in that name (plus `rstlne` only if needed), maps Python’s **keywords** and a curated set of **builtins** (for example `print` and `range`) to those words, and evaluates the resulting program with a built-in tree-walking interpreter. Your source file is **locked** to that name via a header line.
 
+# Website for more information and examples is found [here!](https://sqrl34.github.io/LexiMorph/) [https://sqrl34.github.io/LexiMorph/](https://sqrl34.github.io/LexiMorph/)
+
 ---
 
 ## Requirements
